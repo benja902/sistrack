@@ -1,6 +1,144 @@
+import type { DashboardCenter } from './dashboard.types'
 import type { DashboardMockData } from './dashboard.types'
 
-export const dashboardMockData: DashboardMockData = {
+// ---------------------------------------------------------------------------
+// Todos los centros
+// ---------------------------------------------------------------------------
+const mockAllCenters: DashboardMockData = {
+  summaryCards: [
+    {
+      id: 'milk-production',
+      eyebrow: 'Producción diaria',
+      title: 'Producción de leche hoy',
+      value: '22.0',
+      unit: 'L',
+      detail: 'Total registrado hoy',
+      status: 'Al día',
+      tone: 'success',
+      icon: 'droplet',
+    },
+    {
+      id: 'guinea-pig-inventory',
+      eyebrow: 'Crianza y galpones',
+      title: 'Inventario de cuyes',
+      value: '3,410',
+      unit: 'ejemplares',
+      detail: 'Existencia física',
+      status: 'Auditado',
+      tone: 'neutral',
+      icon: 'box',
+    },
+    {
+      id: 'pending-dispatches',
+      eyebrow: 'Logística de salida',
+      title: 'Despachos pendientes',
+      value: '5',
+      unit: 'despachos',
+      detail: 'Requieren atención',
+      status: 'Pendiente',
+      tone: 'warning',
+      icon: 'truck',
+    },
+    {
+      id: 'open-incidents',
+      eyebrow: 'Gestión de novedades',
+      title: 'Incidencias abiertas',
+      value: '2',
+      unit: 'en revisión',
+      detail: 'Atención requerida',
+      status: 'Abierta',
+      tone: 'error',
+      icon: 'warning',
+    },
+  ],
+  milkProduction: {
+    title: 'Producción de leche — últimos 7 días',
+    description: 'Litros por día (todos los centros)',
+    periodLabel: 'Semanal',
+    totalLabel: 'Total acumulado semanal',
+    totalValue: '157.0 L',
+    data: [
+      { day: 'Lun', value: 20 },
+      { day: 'Mar', value: 24 },
+      { day: 'Mié', value: 21 },
+      { day: 'Jue', value: 25 },
+      { day: 'Vie', value: 23 },
+      { day: 'Sáb', value: 22 },
+      { day: 'Hoy', value: 22, current: true },
+    ],
+  },
+  inventory: {
+    title: 'Inventario de cuyes',
+    description: 'Distribución de etapas biológicas',
+    categoryLabel: 'Etapas',
+    totalLabel: 'Total',
+    totalValue: '3,410',
+    segments: [
+      { label: 'Adultos / reproductores', value: 42, color: '#0055C6' },
+      { label: 'Juvenil', value: 28, color: '#16A36A' },
+      { label: 'Destete', value: 18, color: '#D97706' },
+      { label: 'Lactantes', value: 12, color: '#466082' },
+    ],
+    stats: [
+      { label: 'Existencia física', value: '3,410' },
+      { label: 'Reservado', value: '380', tone: 'warning' },
+      { label: 'Disponible', value: '3,030', tone: 'success' },
+    ],
+    groups: null,
+  },
+  activities: [
+    {
+      id: 'production-recorded',
+      title: 'Producción registrada',
+      productLine: 'Leche',
+      dateTime: 'Hoy, 07:30',
+      status: 'Conforme',
+      tone: 'success',
+      icon: 'droplet',
+    },
+    {
+      id: 'lot-created',
+      title: 'Lote creado',
+      productLine: 'Leche',
+      dateTime: 'Hoy, 08:15',
+      status: 'Conforme',
+      tone: 'success',
+      icon: 'box',
+    },
+    {
+      id: 'dispatch-prepared',
+      title: 'Despacho preparado',
+      productLine: 'Cuyes',
+      dateTime: 'Hoy, 09:40',
+      status: 'En preparación',
+      tone: 'warning',
+      icon: 'truck',
+    },
+    {
+      id: 'reception-confirmed',
+      title: 'Recepción confirmada',
+      productLine: 'Leche',
+      dateTime: 'Ayer, 16:10',
+      status: 'Conforme',
+      tone: 'success',
+      icon: 'check',
+    },
+    {
+      id: 'incident-recorded',
+      title: 'Incidencia registrada',
+      productLine: 'Despacho Leche',
+      dateTime: 'Ayer, 14:20',
+      status: 'En revisión',
+      tone: 'error',
+      icon: 'warning',
+    },
+  ],
+}
+
+// ---------------------------------------------------------------------------
+// Centro Kotosh  (tiene leche)
+// ---------------------------------------------------------------------------
+const mockKotosh: DashboardMockData = {
   summaryCards: [
     {
       id: 'milk-production',
@@ -80,6 +218,7 @@ export const dashboardMockData: DashboardMockData = {
       { label: 'Reservado', value: '240', tone: 'warning' },
       { label: 'Disponible', value: '1,848', tone: 'success' },
     ],
+    groups: null,
   },
   activities: [
     {
@@ -128,4 +267,129 @@ export const dashboardMockData: DashboardMockData = {
       icon: 'warning',
     },
   ],
+}
+
+// ---------------------------------------------------------------------------
+// Centro Canchán  (SIN leche — solo cuyes)
+// ---------------------------------------------------------------------------
+const mockCanchan: DashboardMockData = {
+  summaryCards: [
+    // No hay card de leche
+    {
+      id: 'guinea-pig-inventory',
+      eyebrow: 'Crianza y galpones',
+      title: 'Inventario de cuyes',
+      value: '1,108',
+      unit: 'ejemplares',
+      detail: 'Existencia física',
+      status: 'Auditado',
+      tone: 'neutral',
+      icon: 'box',
+    },
+    {
+      id: 'pending-dispatches',
+      eyebrow: 'Logística de salida',
+      title: 'Despachos pendientes',
+      value: '1',
+      unit: 'despacho',
+      detail: 'Requieren atención',
+      status: 'Pendiente',
+      tone: 'warning',
+      icon: 'truck',
+    },
+    {
+      id: 'open-incidents',
+      eyebrow: 'Gestión de novedades',
+      title: 'Incidencias abiertas',
+      value: '0',
+      unit: 'casos',
+      detail: 'Atención requerida',
+      status: 'Sin incidencias',
+      tone: 'success',
+      icon: 'warning',
+    },
+  ],
+  // Canchán no registra producción de leche
+  milkProduction: null,
+  inventory: {
+    title: 'Inventario de cuyes',
+    description: 'Distribución de etapas biológicas',
+    categoryLabel: 'Etapas',
+    totalLabel: 'Total',
+    totalValue: '1,108',
+    segments: [
+      { label: 'Adultos / reproductores', value: 42.1, count: 467, color: '#1C6DEF' },
+      { label: 'Juvenil', value: 30.2, count: 335, color: '#16A36A' },
+      { label: 'Destete', value: 17.7, count: 196, color: '#D97706' },
+      { label: 'Lactantes', value: 9.9, count: 110, color: '#466082' },
+    ],
+    // Canchán uses the groups panel instead of simple stats
+    stats: null,
+    groups: [
+      { label: 'Adultos / reproductores', total: 467, available: 417, reserved: 50 },
+      { label: 'Juvenil', total: 335, available: 295, reserved: 40 },
+      { label: 'Destete', total: 196, available: 166, reserved: 30 },
+      { label: 'Lactantes', total: 110, available: 110, reserved: 0 },
+    ],
+  },
+  activities: [
+    {
+      id: 'inventory-movement',
+      title: 'Movimiento de inventario',
+      productLine: 'Cuyes',
+      dateTime: 'Hoy, 07:40',
+      status: 'Conforme',
+      tone: 'success',
+      icon: 'activity',
+    },
+    {
+      id: 'mortality-recorded',
+      title: 'Registro de mortalidad',
+      productLine: 'Cuyes',
+      dateTime: 'Hoy, 08:15',
+      status: 'Registrado',
+      tone: 'neutral',
+      icon: 'receipt',
+    },
+    {
+      id: 'dispatch-prepared',
+      title: 'Despacho preparado',
+      productLine: 'Cuyes',
+      dateTime: 'Hoy, 09:40',
+      status: 'En preparación',
+      tone: 'warning',
+      icon: 'truck',
+    },
+    {
+      id: 'reception-confirmed',
+      title: 'Recepción confirmada',
+      productLine: 'Cuyes',
+      dateTime: 'Ayer, 16:10',
+      status: 'Conforme',
+      tone: 'success',
+      icon: 'check',
+    },
+    {
+      id: 'incident-clear',
+      title: 'Incidencia registrada',
+      productLine: 'Despacho Cuyes',
+      dateTime: 'Ayer, 14:20',
+      status: 'Sin incidencias',
+      tone: 'success',
+      icon: 'check',
+    },
+  ],
+}
+
+// ---------------------------------------------------------------------------
+// Selector por centro — punto de entrada único para los componentes
+// ---------------------------------------------------------------------------
+const mockByCenter: Record<DashboardCenter, DashboardMockData> = {
+  'Todos los centros': mockAllCenters,
+  Kotosh: mockKotosh,
+  Canchán: mockCanchan,
+}
+
+export function getDashboardMock(center: DashboardCenter): DashboardMockData {
+  return mockByCenter[center]
 }

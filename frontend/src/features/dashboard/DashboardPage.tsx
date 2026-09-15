@@ -1,21 +1,27 @@
-import { Activity, Boxes, Search, Truck, Warehouse } from 'lucide-react'
+import { Activity, Search, Truck, Warehouse } from 'lucide-react'
 import { Link, useOutletContext } from 'react-router-dom'
 
 import type { AdminLayoutContext } from '@/components/layout/AdminLayout'
 
 import { DashboardCharts } from './DashboardCharts'
-import { dashboardMockData } from './dashboard.mock'
+import { getDashboardMock } from './dashboard.mock'
 import { RecentActivity } from './RecentActivity'
 import { SummaryCard } from './SummaryCard'
 
 const quickLinks = [
   { label: 'Ver inventario', path: '/inventario', icon: Warehouse },
   { label: 'Ver despachos', path: '/logistica', icon: Truck },
-  { label: 'Ver incidencias', path: '/incidencias', icon: Boxes },
 ]
+
+const centerLabel: Record<string, string> = {
+  'Todos los centros': 'Vista general consolidada de todos los centros.',
+  Kotosh: 'Vista operativa del centro Kotosh.',
+  Canchán: 'Vista operativa del centro Canchán.',
+}
 
 export function DashboardPage() {
   const { selectedCenter } = useOutletContext<AdminLayoutContext>()
+  const mock = getDashboardMock(selectedCenter)
 
   return (
     <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-6">
@@ -28,9 +34,7 @@ export function DashboardPage() {
               Supervisión en vivo
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate">
-            Vista general de producción, inventario, despachos e incidencias. Centro: {selectedCenter}.
-          </p>
+          <p className="mt-1 text-xs text-slate">{centerLabel[selectedCenter]}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
@@ -57,18 +61,21 @@ export function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de indicadores">
-        {dashboardMockData.summaryCards.map((card) => (
+      <section
+        className={`grid gap-4 sm:grid-cols-2 ${mock.summaryCards.length === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}
+        aria-label="Resumen de indicadores"
+      >
+        {mock.summaryCards.map((card) => (
           <SummaryCard key={card.id} card={card} />
         ))}
       </section>
 
       <DashboardCharts
-        milkProduction={dashboardMockData.milkProduction}
-        inventory={dashboardMockData.inventory}
+        milkProduction={mock.milkProduction}
+        inventory={mock.inventory}
       />
 
-      <RecentActivity activities={dashboardMockData.activities} />
+      <RecentActivity activities={mock.activities} />
     </div>
   )
 }

@@ -35,6 +35,6 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { name: 'Resumen operativo' })).toBeInTheDocument()
     expect(screen.getByText('Producción de leche hoy')).toBeInTheDocument()
     expect(screen.getByText('Actividad reciente')).toBeInTheDocument()
-    expect(screen.getByText(/Centro: Todos los centros/i)).toBeInTheDocument()
+    expect(screen.getByText(/Vista general consolidada de todos los centros/i)).toBeInTheDocument()
   })
 })
