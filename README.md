@@ -37,6 +37,17 @@ uvicorn app.main:app --reload
 
 La API queda disponible en `http://localhost:8000`. Consulte `GET /api/v1/health` y `GET /api/v1/health/ready`.
 
+## Despliegue en Vercel
+
+El repositorio incluye `vercel.json` para desplegar el frontend Vite y la API FastAPI desde la raíz del proyecto.
+
+1. Importe el repositorio en Vercel sin cambiar el Root Directory.
+2. Mantenga los comandos definidos en `vercel.json` (`npm --prefix frontend ci` y `npm --prefix frontend run build`).
+3. Configure estas variables en Vercel: `DATABASE_URL`, `APP_ENV=production`, `CORS_ORIGINS` con la URL pública de Vercel y un `JWT_SECRET` aleatorio.
+4. No es necesario definir `VITE_API_BASE_URL` cuando frontend y API se despliegan en el mismo proyecto; el frontend usará `/api/v1` automáticamente.
+
+Después del despliegue, verifique `https://SU-DOMINIO.vercel.app/api/v1/health`.
+
 ## Alcance actual
 
 Esta primera fase contiene la infraestructura, entidades maestras y eventos de trazabilidad append-only. Los módulos de producción, inventario, solicitudes, logística, incidencias, reportes, IA y autenticación de usuarios se implementarán de forma incremental.
