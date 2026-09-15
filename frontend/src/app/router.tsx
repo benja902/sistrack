@@ -10,11 +10,13 @@ import { InventoryMovementDetailPage } from '@/features/inventory/pages/Inventor
 import { InventoryMovementPage } from '@/features/inventory/pages/InventoryMovementPage'
 import { ProductionDetailPage } from '@/features/production/pages/ProductionDetailPage'
 import { ProductionListPage } from '@/features/production/pages/ProductionListPage'
+import { RequestCreatePage } from '@/features/requests/pages/RequestCreatePage'
+import { RequestDetailPage } from '@/features/requests/pages/RequestDetailPage'
+import { RequestListPage } from '@/features/requests/pages/RequestListPage'
 import { EmptyModulePage } from '@/pages/EmptyModulePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 const administrationRoutes = [
-  'solicitudes',
   'logistica',
   'incidencias',
   'trazabilidad',
@@ -37,6 +39,9 @@ export const router = createBrowserRouter([
           { path: 'inventario/existencias/:existenceId', element: <InventoryExistenceDetailPage /> },
           { path: 'inventario/movimientos', element: <InventoryMovementPage /> },
           { path: 'inventario/movimientos/:movementId', element: <InventoryMovementDetailPage /> },
+          { path: 'solicitudes', element: <RequestListPage /> },
+          { path: 'solicitudes/nueva', element: <RequestCreatePage /> },
+          { path: 'solicitudes/:requestId', element: <RequestDetailPage /> },
           ...administrationRoutes.map((path) => ({ path, element: <EmptyModulePage /> })),
         ],
       },
