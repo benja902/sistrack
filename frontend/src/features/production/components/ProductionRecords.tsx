@@ -9,17 +9,15 @@ const pageSize = 5
 
 export function ProductionRecords({ records }: { records: ProductionRecord[] }) {
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<'Todos' | 'Cerrado'>('Cerrado')
   const [page, setPage] = useState(0)
 
   const filteredRecords = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('es')
     return records.filter((record) => {
       const matchesQuery = !normalizedQuery || record.lotCode.toLocaleLowerCase('es').includes(normalizedQuery)
-      const matchesStatus = status === 'Todos' || record.status === status
-      return matchesQuery && matchesStatus
+      return matchesQuery
     })
-  }, [query, records, status])
+  }, [query, records])
 
   const maxPage = Math.max(0, Math.ceil(filteredRecords.length / pageSize) - 1)
   const currentPage = Math.min(page, maxPage)
@@ -42,22 +40,7 @@ export function ProductionRecords({ records }: { records: ProductionRecord[] }) 
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">
-          Estado:
-          <select
-            className="h-8 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium normal-case tracking-normal text-ink outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as 'Todos' | 'Cerrado')
-              setPage(0)
-            }}
-          >
-            <option value="Todos">Todos los estados</option>
-            <option value="Cerrado">Cerrado</option>
-          </select>
-        </label>
-
+      <div className="flex justify-end border-b border-slate-100 bg-slate-50/70 px-5 py-3.5">
         <label className="relative w-full sm:w-64">
           <span className="sr-only">Buscar por código de lote</span>
           <Search className="absolute left-2.5 top-2 size-4 text-slate" aria-hidden="true" />
@@ -79,7 +62,7 @@ export function ProductionRecords({ records }: { records: ProductionRecord[] }) 
               <th className="px-5 py-3" scope="col">Centro</th>
               <th className="px-5 py-3" scope="col">Producto</th>
               <th className="px-5 py-3" scope="col">Cantidad</th>
-              <th className="px-5 py-3" scope="col">Responsable</th>
+              <th className="px-5 py-3" scope="col">Responsable de producción</th>
               <th className="px-5 py-3" scope="col">Estado / evento</th>
               <th className="px-5 py-3 text-right" scope="col">Acción</th>
             </tr>
@@ -123,7 +106,7 @@ export function ProductionRecords({ records }: { records: ProductionRecord[] }) 
             <dl className="grid grid-cols-2 gap-3 text-xs">
               <div><dt className="text-slate">Producto</dt><dd className="mt-0.5 font-semibold text-ink">{record.product}</dd></div>
               <div><dt className="text-slate">Cantidad</dt><dd className="mt-0.5 font-bold text-ink">{record.quantity.toFixed(1)} {record.unit}</dd></div>
-              <div><dt className="text-slate">Responsable</dt><dd className="mt-0.5 text-ink">{record.responsible}</dd></div>
+              <div><dt className="text-slate">Responsable de producción</dt><dd className="mt-0.5 text-ink">{record.responsible}</dd></div>
               <div><dt className="text-slate">Evento</dt><dd className="mt-0.5 text-ink">{record.event}</dd></div>
             </dl>
             <Link className="inline-flex items-center gap-1 text-xs font-semibold text-primary" to={`/produccion/${record.id}`}>

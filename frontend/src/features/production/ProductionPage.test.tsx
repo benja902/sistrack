@@ -16,8 +16,16 @@ const production: MilkProductionApi = {
   lot_code: 'LEC-KOT-20260915-001',
   production_date: '2026-09-15',
   responsible: 'Vilma',
+  responsible_actor: {
+    id: '00000000-0000-0000-0000-000000000401',
+    full_name: 'Vilma',
+  },
   total_liters: '22.000',
   registered_by_user_id: '00000000-0000-0000-0000-000000000301',
+  registered_by: {
+    id: '00000000-0000-0000-0000-000000000301',
+    full_name: 'Administrador temporal',
+  },
   created_at: '2026-09-15T07:30:00-05:00',
   center: {
     id: '00000000-0000-0000-0000-000000000101',
@@ -86,6 +94,8 @@ describe('ProductionListPage', () => {
 
     expect(await screen.findByText('Litros por día (Kotosh)')).toBeInTheDocument()
     expect(screen.getAllByText('Producción registrada').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Registrada').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Cerrado')).not.toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Centro de producción'), { target: { value: 'Canchán' } })
 
@@ -113,5 +123,7 @@ describe('ProductionDetailPage', () => {
     expect(screen.getByRole('heading', { name: 'Detalle por vaca' })).toBeInTheDocument()
     expect(screen.getByText('Evento inicial')).toBeInTheDocument()
     expect(screen.getByText('Producción registrada')).toBeInTheDocument()
+    expect(screen.getByText('Registrado por')).toBeInTheDocument()
+    expect(screen.getByText('Administrador temporal')).toBeInTheDocument()
   })
 })

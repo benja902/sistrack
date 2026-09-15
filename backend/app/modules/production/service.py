@@ -1,18 +1,19 @@
 import uuid
-from datetime import UTC, date, datetime, time
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from app.modules.catalog.models import Center, Product
-from app.modules.identity.models import User
+from app.modules.identity.models import OperationalActor, User
 from app.modules.traceability.models import TraceabilityEvent
 
 from .models import MilkProduction, MilkProductionDetail
 from .schemas import MilkProductionCreate
 
 MILK_SKU = "LECHE"
+MILK_PRODUCTION_CENTER_CODE = "KOTOSH"
 PRODUCTION_EVENT_TYPE = "production_registered"
 PRODUCTION_REFERENCE_TYPE = "milk_production"
 
@@ -25,7 +26,12 @@ def list_milk_productions(session: Session, center_code: str | None = None) -> l
     statement = (
         select(MilkProduction)
         .join(MilkProduction.center)
-        .options(selectinload(MilkProduction.center), selectinload(MilkProduction.product))
+        .options(
+            selectinload(MilkProduction.center),
+            selectinload(MilkProduction.product),
+            selectinload(MilkProduction.responsible_actor),
+            selectinload(MilkProduction.registered_by_user),
+        )
         .order_by(MilkProduction.production_date.desc(), MilkProduction.created_at.desc())
     )
     if center_code:
@@ -39,6 +45,8 @@ def get_milk_production(session: Session, production_id: uuid.UUID) -> MilkProdu
         .options(
             selectinload(MilkProduction.center),
             selectinload(MilkProduction.product),
+            selectinload(MilkProduction.responsible_actor),
+            selectinload(MilkProduction.registered_by_user),
             selectinload(MilkProduction.details),
         )
         .where(MilkProduction.id == production_id)
@@ -75,12 +83,27 @@ def create_milk_production(
     )
     if center is None:
         raise ProductionValidationError("El centro indicado no existe o está inactivo.")
+    if center.code.upper() != MILK_PRODUCTION_CENTER_CODE:
+        raise ProductionValidationError(
+            "La producción de leche del alcance actual solo puede registrarse en Kotosh."
+        )
 
     product = session.scalar(
         select(Product).where(Product.sku == MILK_SKU, Product.is_active.is_(True))
     )
     if product is None:
         raise ProductionValidationError("El producto Leche no existe o está inactivo.")
+
+    responsible_actor = session.scalar(
+        select(OperationalActor).where(
+            OperationalActor.id == payload.responsible_actor_id,
+            OperationalActor.is_active.is_(True),
+        )
+    )
+    if responsible_actor is None:
+        raise ProductionValidationError(
+            "El responsable de producción no existe o está inactivo."
+        )
 
     user = session.scalar(
         select(User).where(User.id == registered_by_user_id, User.is_active.is_(True))
@@ -98,11 +121,13 @@ def create_milk_production(
         center_id=center.id,
         product_id=product.id,
         production_date=payload.production_date,
-        responsible=payload.responsible,
+        responsible=responsible_actor.full_name,
+        responsible_actor_id=responsible_actor.id,
         total_liters=total_liters,
         registered_by_user_id=user.id,
         center=center,
         product=product,
+        responsible_actor=responsible_actor,
         registered_by_user=user,
         details=[
             MilkProductionDetail(
@@ -119,8 +144,9 @@ def create_milk_production(
     event = TraceabilityEvent(
         id=uuid.uuid4(),
         event_type=PRODUCTION_EVENT_TYPE,
-        occurred_at=datetime.combine(payload.production_date, time.min, tzinfo=UTC),
+        occurred_at=datetime.now(UTC),
         recorded_by_user_id=user.id,
+        operational_actor_id=responsible_actor.id,
         center_id=center.id,
         product_id=product.id,
         reference_type=PRODUCTION_REFERENCE_TYPE,

@@ -20,11 +20,15 @@ class MilkProduction(CreatedAtMixin, Base):
     product_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("products.id"), nullable=False)
     production_date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
     responsible: Mapped[str] = mapped_column(String(150), nullable=False)
+    responsible_actor_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("operational_actors.id"), index=True, nullable=True
+    )
     total_liters: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
     registered_by_user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     center: Mapped["Center"] = relationship()
     product: Mapped["Product"] = relationship()
+    responsible_actor: Mapped["OperationalActor | None"] = relationship()
     registered_by_user: Mapped["User"] = relationship()
     details: Mapped[list["MilkProductionDetail"]] = relationship(
         back_populates="production",
@@ -47,4 +51,4 @@ class MilkProductionDetail(CreatedAtMixin, Base):
 
 
 from app.modules.catalog.models import Center, Product  # noqa: E402
-from app.modules.identity.models import User  # noqa: E402
+from app.modules.identity.models import OperationalActor, User  # noqa: E402

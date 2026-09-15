@@ -59,7 +59,7 @@ export function ProductionDetailPage() {
         <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-slate-100">
           <div className="lg:pr-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Centro</dt><dd className="mt-1.5 flex items-center gap-1.5 font-bold text-ink"><Building2 className="size-[18px] text-primary" aria-hidden="true" />{production.center}</dd></div>
           <div className="lg:px-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Fecha producción</dt><dd className="mt-1.5 font-bold text-ink">{production.date}</dd></div>
-          <div className="lg:px-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Responsable</dt><dd className="mt-1.5 flex items-center gap-1.5 font-bold text-ink"><UserRound className="size-[18px] text-slate" aria-hidden="true" />{production.responsible}</dd></div>
+          <div className="lg:px-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Responsable de producción</dt><dd className="mt-1.5 flex items-center gap-1.5 font-bold text-ink"><UserRound className="size-[18px] text-slate" aria-hidden="true" />{production.responsible}</dd></div>
           <div className="lg:px-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Producción total</dt><dd className="mt-0.5 text-[28px] font-bold leading-tight text-ink">{production.quantity.toFixed(1)} <span className="text-sm text-slate">{production.unit}</span></dd></div>
           <div className="lg:px-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Lote generado</dt><dd className="mt-2 break-all font-mono text-xs font-bold text-primary">{production.lotCode}</dd></div>
           <div className="lg:pl-4"><dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate">Estado</dt><dd className="mt-2"><ProductionStatusBadge status={production.status} /></dd></div>
@@ -104,7 +104,8 @@ export function ProductionDetailPage() {
             <dl className="space-y-3 p-5 text-xs">
               <div className="flex justify-between gap-4 border-b border-slate-100 py-1.5"><dt className="text-slate">Fecha de producción</dt><dd className="font-medium text-ink">{production.date}</dd></div>
               <div className="flex justify-between gap-4 border-b border-slate-100 py-1.5"><dt className="text-slate">Fecha de registro</dt><dd className="font-medium text-ink">{production.registeredAt}</dd></div>
-              <div className="flex justify-between gap-4 border-b border-slate-100 py-1.5"><dt className="text-slate">Responsable</dt><dd className="font-semibold text-ink">{production.responsible}</dd></div>
+              <div className="flex justify-between gap-4 border-b border-slate-100 py-1.5"><dt className="text-slate">Responsable de producción</dt><dd className="font-semibold text-ink">{production.responsible}</dd></div>
+              <div className="flex justify-between gap-4 border-b border-slate-100 py-1.5"><dt className="text-slate">Registrado por</dt><dd className="font-semibold text-ink">{production.registeredBy}</dd></div>
               <div className="flex justify-between gap-4 py-1.5"><dt className="text-slate">Centro</dt><dd className="font-medium text-ink">{production.center}</dd></div>
             </dl>
           </section>

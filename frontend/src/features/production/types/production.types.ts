@@ -1,6 +1,6 @@
 export type ProductionCenter = 'Kotosh' | 'Canchán'
 
-export type ProductionStatus = 'Cerrado'
+export type ProductionStatus = 'Registrada'
 
 export type ProductionEvent = 'Producción registrada'
 
@@ -20,6 +20,7 @@ export type ProductionRecord = {
   quantity: number
   unit: 'L'
   responsible: string
+  registeredBy: string
   status: ProductionStatus
   event: ProductionEvent
   lotCode: string
@@ -64,8 +65,16 @@ export type MilkProductionApi = {
   lot_code: string
   production_date: string
   responsible: string
+  responsible_actor: {
+    id: string
+    full_name: string
+  } | null
   total_liters: string | number
   registered_by_user_id: string
+  registered_by: {
+    id: string
+    full_name: string
+  }
   created_at: string
   center: ProductionCenterApi
   product: ProductionProductApi
@@ -83,7 +92,7 @@ export type MilkProductionDetailApi = MilkProductionApi & {
 export type MilkProductionCreate = {
   production_date: string
   center_id: string
-  responsible: string
+  responsible_actor_id: string
   details: Array<{
     animal_reference: string
     liters: number
