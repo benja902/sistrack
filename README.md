@@ -37,6 +37,20 @@ uvicorn app.main:app --reload
 
 La API queda disponible en `http://localhost:8000`. Consulte `GET /api/v1/health` y `GET /api/v1/health/ready`.
 
+### Cuenta administrativa inicial
+
+Configure `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` y un `JWT_SECRET` seguro en
+`backend/.env`. Después ejecute una vez —o cada vez que necesite reconciliar la
+cuenta, ya que el proceso es idempotente—:
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m app.scripts.seed_admin
+```
+
+La contraseña se transforma con Argon2 antes de almacenarse. El seed reutiliza
+el rol `ADMINISTRADOR` existente y no imprime credenciales ni hashes.
+
 ## Despliegue en Vercel
 
 El repositorio incluye `vercel.json` para desplegar el frontend Vite y la API FastAPI desde la raíz del proyecto.

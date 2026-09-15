@@ -4,12 +4,23 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { AuthProvider } from '@/features/auth/AuthProvider'
 
 import { ProductionDetailPage } from './pages/ProductionDetailPage'
 import { ProductionListPage } from './pages/ProductionListPage'
 import type { MilkProductionApi, MilkProductionDetailApi } from './types/production.types'
 
 const productionId = '10000000-0000-0000-0000-000000000001'
+const authenticatedUser = {
+  id: '00000000-0000-0000-0000-000000000501',
+  name: 'Abraham',
+  email: 'abraham@example.test',
+  role: {
+    id: '00000000-0000-0000-0000-000000000001',
+    code: 'ADMINISTRADOR',
+    name: 'Administrador / Supervisor',
+  },
+}
 
 const production: MilkProductionApi = {
   id: productionId,
@@ -60,6 +71,7 @@ function jsonResponse(body: unknown, status = 200) {
 function installSuccessfulApiMock() {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input)
+    if (url.endsWith('/auth/me')) return jsonResponse(authenticatedUser)
     if (url.includes(`/${productionId}`)) return jsonResponse(detail)
     if (url.includes('center_code=CANCHAN')) return jsonResponse([])
     return jsonResponse([production])
@@ -73,20 +85,28 @@ function renderProduction(initialEntry = '/produccion') {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes>
-          <Route element={<AdminLayout />}>
-            <Route path="produccion" element={<ProductionListPage />} />
-            <Route path="produccion/:productionId" element={<ProductionDetailPage />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <AuthProvider>
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <Routes>
+            <Route element={<AdminLayout />}>
+              <Route path="produccion" element={<ProductionListPage />} />
+              <Route path="produccion/:productionId" element={<ProductionDetailPage />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </AuthProvider>
     </QueryClientProvider>,
   )
 }
 
-beforeEach(() => installSuccessfulApiMock())
-afterEach(() => vi.unstubAllGlobals())
+beforeEach(() => {
+  window.localStorage.setItem('sitrack.access_token', 'test-token')
+  installSuccessfulApiMock()
+})
+afterEach(() => {
+  window.localStorage.clear()
+  vi.unstubAllGlobals()
+})
 
 describe('ProductionListPage', () => {
   it('carga registros reales y muestra Canchán vacío al cambiar el centro', async () => {
@@ -99,7 +119,11 @@ describe('ProductionListPage', () => {
 
     fireEvent.change(screen.getByLabelText('Centro de producción'), { target: { value: 'Canchán' } })
 
-    expect(await screen.findByRole('heading', { name: 'Sin registros de producción' })).toBeInTheDocument()
+    expect(await screen.findByRole(
+      'heading',
+      { name: 'Sin registros de producción' },
+      { timeout: 3_000 },
+    )).toBeInTheDocument()
     expect(screen.getByText('No existen registros de producción de leche para el centro Canchán.')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Registros de producción' })).not.toBeInTheDocument()
   })

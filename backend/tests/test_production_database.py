@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import inspect, select
 from sqlalchemy.orm import Session
 
+from app.api.v1.routes.production import require_admin_user
 from app.core.config import get_settings
 from app.db.session import get_engine, get_session
 from app.main import create_app
@@ -46,6 +47,7 @@ def test_real_database_milk_production_flow() -> None:
 
     app = create_app()
     app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[require_admin_user] = lambda: object()
     client = TestClient(app)
 
     try:

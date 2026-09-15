@@ -1,3 +1,5 @@
+import { getAccessToken } from '@/features/auth/auth-token'
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
 
 export class ApiError extends Error {
@@ -11,7 +13,11 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, init)
+  const headers = new Headers(init?.headers)
+  const accessToken = getAccessToken()
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
+
+  const response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers })
 
   if (!response.ok) {
     let message = `La solicitud a la API falló con estado ${response.status}.`

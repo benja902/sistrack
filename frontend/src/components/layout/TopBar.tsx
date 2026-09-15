@@ -1,4 +1,6 @@
-import { Building2, ChevronDown, Menu, ShieldCheck } from 'lucide-react'
+import { Building2, ChevronDown, LogOut, Menu, ShieldCheck } from 'lucide-react'
+
+import { useAuth } from '@/features/auth/useAuth'
 
 export type Center = 'Todos los centros' | 'Kotosh' | 'Canchán'
 
@@ -9,6 +11,9 @@ type TopBarProps = {
 }
 
 export function TopBar({ center, onCenterChange, onOpenNavigation }: TopBarProps) {
+  const { user, logout } = useAuth()
+  const roleLabel = user?.role.code === 'ADMINISTRADOR' ? 'Administrador' : user?.role.name
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border-subtle bg-white/95 px-4 shadow-sm backdrop-blur md:px-6 lg:px-8">
       <div className="flex items-center gap-3">
@@ -43,15 +48,24 @@ export function TopBar({ center, onCenterChange, onOpenNavigation }: TopBarProps
 
       <div className="flex items-center gap-3 sm:gap-4">
         <div className="hidden text-right sm:block">
-          <span className="block text-xs font-semibold leading-tight text-ink">Administrador</span>
-          <span className="block pt-0.5 text-[11px] font-medium leading-tight text-slate">Rol: Supervisión</span>
+          <span className="block text-xs font-semibold leading-tight text-ink">{user?.name}</span>
+          <span className="block pt-0.5 text-[11px] font-medium leading-tight text-slate">{roleLabel} · Supervisión</span>
         </div>
         <div
           className="grid size-8 place-items-center rounded-full bg-primary text-white shadow-sm"
-          aria-label="Perfil de Administrador, rol Supervisión"
+          aria-label={`Perfil de ${user?.name ?? 'usuario'}, ${roleLabel ?? 'sin rol'}, Supervisión`}
         >
           <ShieldCheck className="size-[18px]" aria-hidden="true" />
         </div>
+        <button
+          className="grid size-8 place-items-center rounded-md text-slate transition-colors hover:bg-slate-100 hover:text-ink"
+          type="button"
+          onClick={logout}
+          aria-label="Cerrar sesión"
+          title="Cerrar sesión"
+        >
+          <LogOut className="size-4" aria-hidden="true" />
+        </button>
       </div>
     </header>
   )

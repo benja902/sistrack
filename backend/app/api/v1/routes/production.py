@@ -1,10 +1,13 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.auth import require_roles
 from app.core.config import Settings, get_settings
 from app.db.session import get_session
+from app.modules.identity.models import User
 from app.modules.production.schemas import (
     MilkProductionCreate,
     MilkProductionDetailResponse,
@@ -18,6 +21,7 @@ from app.modules.production.service import (
 )
 
 router = APIRouter(prefix="/production/milk")
+require_admin_user = require_roles("ADMINISTRADOR")
 
 
 def get_temporary_registered_user_id(settings: Settings = Depends(get_settings)) -> UUID:
@@ -27,6 +31,7 @@ def get_temporary_registered_user_id(settings: Settings = Depends(get_settings))
 
 @router.get("", response_model=list[MilkProductionRead])
 def list_productions(
+    _current_user: Annotated[User, Depends(require_admin_user)],
     center_code: str | None = Query(default=None, max_length=50),
     session: Session = Depends(get_session),
 ) -> list[MilkProductionRead]:
@@ -36,6 +41,7 @@ def list_productions(
 @router.get("/{production_id}", response_model=MilkProductionDetailResponse)
 def get_production(
     production_id: UUID,
+    _current_user: Annotated[User, Depends(require_admin_user)],
     session: Session = Depends(get_session),
 ) -> MilkProductionDetailResponse:
     production = get_milk_production(session, production_id)
