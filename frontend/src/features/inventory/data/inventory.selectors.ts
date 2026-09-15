@@ -1,5 +1,3 @@
-import type { Center } from '@/components/layout/TopBar'
-
 import type {
   InventoryBalance,
   InventoryCategory,
@@ -8,24 +6,12 @@ import type {
   InventoryMovementType,
 } from '../types/inventory.types'
 
-export function getAvailableStock(existence: InventoryExistence) {
-  return existence.physicalStock - existence.reservedStock
-}
-
-export function getMovementStockAfter(movement: InventoryMovement) {
-  return movement.physicalStockBefore - movement.quantity
-}
-
-export function filterBySelectedCenter<T extends { center: string }>(records: T[], center: Center) {
-  return center === 'Todos los centros' ? records : records.filter((record) => record.center === center)
-}
-
 export function summarizeExistences(existences: InventoryExistence[]): InventoryBalance {
   return existences.reduce(
     (summary, existence) => ({
       physicalStock: summary.physicalStock + existence.physicalStock,
       reservedStock: summary.reservedStock + existence.reservedStock,
-      availableStock: summary.availableStock + getAvailableStock(existence),
+      availableStock: summary.availableStock + existence.availableStock,
     }),
     { physicalStock: 0, reservedStock: 0, availableStock: 0 },
   )
@@ -34,7 +20,7 @@ export function summarizeExistences(existences: InventoryExistence[]): Inventory
 export function sumMovementQuantity(movements: InventoryMovement[], type: InventoryMovementType) {
   return movements
     .filter((movement) => movement.type === type)
-    .reduce((total, movement) => total + movement.quantity, 0)
+    .reduce((total, movement) => total + Math.abs(movement.quantity), 0)
 }
 
 export function summarizeExistencesByCategory(existences: InventoryExistence[]) {

@@ -1,0 +1,2 @@
+"""Guinea pig inventory domain."""
+

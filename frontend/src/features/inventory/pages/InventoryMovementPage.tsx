@@ -1,19 +1,17 @@
 import { AlertTriangle, ArrowUpRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 
 import type { AdminLayoutContext } from '@/components/layout/AdminLayout'
 
 import { InventoryPageHeader } from '../components/InventoryPageHeader'
+import { InventoryRequestState } from '../components/InventoryRequestState'
 import { InventorySummaryCard } from '../components/InventorySummaryCard'
 import { InventoryTabs } from '../components/InventoryTabs'
 import { MovementTypeBadge } from '../components/MovementTypeBadge'
-import { inventoryMovementsMock } from '../data/inventory.mock'
-import {
-  filterBySelectedCenter,
-  formatInventoryDateTime,
-  sumMovementQuantity,
-} from '../data/inventory.selectors'
+import { toInventoryMovement } from '../data/inventory.mapper'
+import { formatInventoryDateTime, sumMovementQuantity } from '../data/inventory.selectors'
+import { useInventoryMovements } from '../queries/inventory.queries'
 import {
   inventoryCategories,
   type InventoryCategory,
@@ -23,16 +21,17 @@ import {
 type TypeFilter = 'Todos los tipos' | InventoryMovementType
 type CategoryFilter = 'Todas las categorías' | InventoryCategory
 
+const centerCodes = { Kotosh: 'KOTOSH', Canchán: 'CANCHAN' } as const
+
 export function InventoryMovementPage() {
   const { selectedCenter } = useOutletContext<AdminLayoutContext>()
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('Todos los tipos')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('Todas las categorías')
   const [search, setSearch] = useState('')
 
-  const centerMovements = useMemo(
-    () => filterBySelectedCenter(inventoryMovementsMock, selectedCenter),
-    [selectedCenter],
-  )
+  const centerCode = selectedCenter === 'Todos los centros' ? undefined : centerCodes[selectedCenter]
+  const movementsQuery = useInventoryMovements(centerCode)
+  const centerMovements = (movementsQuery.data ?? []).map(toInventoryMovement)
   const visibleMovements = centerMovements.filter((movement) => {
     const matchesType = typeFilter === 'Todos los tipos' || movement.type === typeFilter
     const matchesCategory = categoryFilter === 'Todas las categorías' || movement.category === categoryFilter
@@ -45,6 +44,12 @@ export function InventoryMovementPage() {
       <InventoryPageHeader description="Consulta y seguimiento de movimientos que afectan la existencia física." />
       <InventoryTabs />
 
+      {movementsQuery.isPending ? (
+        <InventoryRequestState state="loading" />
+      ) : movementsQuery.isError ? (
+        <InventoryRequestState state="error" onRetry={() => movementsQuery.refetch()} />
+      ) : (
+        <>
       <section className="grid gap-4 md:grid-cols-2" aria-label="Resumen de movimientos mostrados">
         <InventorySummaryCard
           eyebrow="Salidas físicas"
@@ -104,7 +109,7 @@ export function InventoryMovementPage() {
                   <th className="px-4 py-3">Tipo</th>
                   <th className="px-4 py-3 text-right">Cantidad</th>
                   <th className="px-4 py-3">Referencia</th>
-                  <th className="px-4 py-3">Responsable / registrador</th>
+                  <th className="px-4 py-3">Registrador</th>
                   <th className="px-6 py-3 text-right">Acción</th>
                 </tr>
               </thead>
@@ -115,11 +120,10 @@ export function InventoryMovementPage() {
                     <td className="px-4 py-3.5">{movement.center}</td>
                     <td className="px-4 py-3.5 font-medium text-slate-700">{movement.category}</td>
                     <td className="px-4 py-3.5"><MovementTypeBadge type={movement.type} /></td>
-                    <td className="px-4 py-3.5 text-right font-bold">−{movement.quantity}</td>
+                    <td className="px-4 py-3.5 text-right font-bold">{movement.quantity}</td>
                     <td className="px-4 py-3.5 font-mono font-semibold">{movement.reference}</td>
                     <td className="px-4 py-3.5">
-                      <span className="block font-medium">{movement.responsible}</span>
-                      <span className="block text-[11px] text-slate">Registró: {movement.registeredBy}</span>
+                      <span className="block font-medium">{movement.registeredBy}</span>
                     </td>
                     <td className="px-6 py-3.5 text-right">
                       <Link className="font-semibold text-primary hover:underline" to={`/inventario/movimientos/${movement.id}`}>Ver detalle</Link>
@@ -137,7 +141,8 @@ export function InventoryMovementPage() {
         )}
         <div className="border-t border-slate-100 px-6 py-3 text-xs text-slate">Mostrando {visibleMovements.length} movimientos</div>
       </section>
+        </>
+      )}
     </div>
   )
 }
-

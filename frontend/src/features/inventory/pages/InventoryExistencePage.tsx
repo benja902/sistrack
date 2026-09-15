@@ -1,31 +1,32 @@
 import { CheckCircle2, LockKeyhole, PawPrint } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 
 import type { AdminLayoutContext } from '@/components/layout/AdminLayout'
 
 import { InventoryPageHeader } from '../components/InventoryPageHeader'
+import { InventoryRequestState } from '../components/InventoryRequestState'
 import { InventorySummaryCard } from '../components/InventorySummaryCard'
 import { InventoryTabs } from '../components/InventoryTabs'
-import { inventoryExistencesMock } from '../data/inventory.mock'
+import { toInventoryExistence } from '../data/inventory.mapper'
 import {
-  filterBySelectedCenter,
-  getAvailableStock,
   summarizeExistences,
   summarizeExistencesByCategory,
 } from '../data/inventory.selectors'
+import { useInventoryExistences } from '../queries/inventory.queries'
 import { inventoryCategories, type InventoryCategory } from '../types/inventory.types'
 
 type CategoryFilter = 'Todas las categorías' | InventoryCategory
+
+const centerCodes = { Kotosh: 'KOTOSH', Canchán: 'CANCHAN' } as const
 
 export function InventoryExistencePage() {
   const { selectedCenter } = useOutletContext<AdminLayoutContext>()
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('Todas las categorías')
 
-  const centerExistences = useMemo(
-    () => filterBySelectedCenter(inventoryExistencesMock, selectedCenter),
-    [selectedCenter],
-  )
+  const centerCode = selectedCenter === 'Todos los centros' ? undefined : centerCodes[selectedCenter]
+  const existencesQuery = useInventoryExistences(centerCode)
+  const centerExistences = (existencesQuery.data ?? []).map(toInventoryExistence)
   const visibleExistences = categoryFilter === 'Todas las categorías'
     ? centerExistences
     : centerExistences.filter((existence) => existence.category === categoryFilter)
@@ -37,6 +38,17 @@ export function InventoryExistencePage() {
       <InventoryPageHeader description="Consulta y control de existencias del centro seleccionado." />
       <InventoryTabs />
 
+      {existencesQuery.isPending ? (
+        <InventoryRequestState state="loading" />
+      ) : existencesQuery.isError ? (
+        <InventoryRequestState state="error" onRetry={() => existencesQuery.refetch()} />
+      ) : centerExistences.length === 0 ? (
+        <section className="rounded-xl border border-border-subtle bg-white px-6 py-12 text-center shadow-sm">
+          <h2 className="text-sm font-semibold text-ink">Sin existencias</h2>
+          <p className="mt-1 text-xs text-slate">No existen saldos para el centro seleccionado.</p>
+        </section>
+      ) : (
+        <>
       <section className="grid gap-4 md:grid-cols-3" aria-label="Resumen de existencias">
         <InventorySummaryCard eyebrow="Existencia" title="Existencia física" value={summary.physicalStock} icon={PawPrint} />
         <InventorySummaryCard eyebrow="Reservas" title="Reservado" value={summary.reservedStock} icon={LockKeyhole} tone="warning" />
@@ -102,7 +114,7 @@ export function InventoryExistencePage() {
                   <td className="px-6 py-3.5 font-medium text-slate-700">{existence.category}</td>
                   <td className="px-6 py-3.5 text-right font-bold">{existence.physicalStock}</td>
                   <td className="px-6 py-3.5 text-right font-semibold text-amber-700">{existence.reservedStock}</td>
-                  <td className="px-6 py-3.5 text-right font-bold text-emerald-700">{getAvailableStock(existence)}</td>
+                  <td className="px-6 py-3.5 text-right font-bold text-emerald-700">{existence.availableStock}</td>
                   <td className="px-6 py-3.5 text-right">
                     <Link className="font-semibold text-primary hover:underline" to={`/inventario/existencias/${existence.id}`}>
                       Ver detalle
@@ -117,7 +129,8 @@ export function InventoryExistencePage() {
           Mostrando {visibleExistences.length} registros
         </div>
       </section>
+        </>
+      )}
     </div>
   )
 }
-

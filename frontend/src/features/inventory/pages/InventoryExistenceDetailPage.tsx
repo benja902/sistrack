@@ -1,14 +1,23 @@
 import { ArrowLeft, CheckCircle2, LockKeyhole, PawPrint } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 
+import { InventoryRequestState } from '../components/InventoryRequestState'
 import { InventorySummaryCard } from '../components/InventorySummaryCard'
 import { MovementTypeBadge } from '../components/MovementTypeBadge'
-import { inventoryExistencesMock, inventoryMovementsMock } from '../data/inventory.mock'
-import { formatInventoryDateTime, getAvailableStock } from '../data/inventory.selectors'
+import { toInventoryExistence, toInventoryMovement } from '../data/inventory.mapper'
+import { formatInventoryDateTime } from '../data/inventory.selectors'
+import { useInventoryExistence } from '../queries/inventory.queries'
 
 export function InventoryExistenceDetailPage() {
   const { existenceId } = useParams()
-  const existence = inventoryExistencesMock.find((item) => item.id === existenceId)
+  const existenceQuery = useInventoryExistence(existenceId ?? '')
+
+  if (existenceQuery.isPending) return <InventoryRequestState state="loading" />
+  if (existenceQuery.isError) {
+    return <InventoryRequestState state="error" onRetry={() => existenceQuery.refetch()} />
+  }
+
+  const existence = existenceQuery.data
 
   if (!existence) {
     return (
@@ -21,7 +30,8 @@ export function InventoryExistenceDetailPage() {
     )
   }
 
-  const relatedMovements = inventoryMovementsMock.filter((movement) => movement.existenceId === existence.id)
+  const existenceView = toInventoryExistence(existence)
+  const relatedMovements = existence.movements.map(toInventoryMovement)
 
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-6">
@@ -36,10 +46,10 @@ export function InventoryExistenceDetailPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight text-ink">Detalle de existencia</h1>
           <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-primary">
-            {existence.category}
+            {existenceView.category}
           </span>
         </div>
-        <p className="mt-1.5 text-sm font-medium text-slate">{existence.center}</p>
+        <p className="mt-1.5 text-sm font-medium text-slate">{existenceView.center}</p>
       </section>
 
       <section className="rounded-xl border border-border-subtle bg-white p-5 shadow-sm">
@@ -47,11 +57,11 @@ export function InventoryExistenceDetailPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-border-subtle/60 bg-canvas p-3">
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate">Centro</span>
-            <strong className="mt-0.5 block text-sm text-ink">{existence.center}</strong>
+            <strong className="mt-0.5 block text-sm text-ink">{existenceView.center}</strong>
           </div>
           <div className="rounded-lg border border-border-subtle/60 bg-canvas p-3">
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate">Categoría</span>
-            <strong className="mt-0.5 block text-sm text-ink">{existence.category}</strong>
+            <strong className="mt-0.5 block text-sm text-ink">{existenceView.category}</strong>
           </div>
         </div>
       </section>
@@ -67,9 +77,9 @@ export function InventoryExistenceDetailPage() {
           </code>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <InventorySummaryCard eyebrow="Existencia" title="Existencia física" value={existence.physicalStock} icon={PawPrint} />
-          <InventorySummaryCard eyebrow="Reservas" title="Reservado" value={existence.reservedStock} icon={LockKeyhole} tone="warning" />
-          <InventorySummaryCard eyebrow="Disponibilidad" title="Disponible" value={getAvailableStock(existence)} icon={CheckCircle2} tone="success" />
+          <InventorySummaryCard eyebrow="Existencia" title="Existencia física" value={existenceView.physicalStock} icon={PawPrint} />
+          <InventorySummaryCard eyebrow="Reservas" title="Reservado" value={existenceView.reservedStock} icon={LockKeyhole} tone="warning" />
+          <InventorySummaryCard eyebrow="Disponibilidad" title="Disponible" value={existenceView.availableStock} icon={CheckCircle2} tone="success" />
         </div>
       </section>
 
@@ -92,7 +102,7 @@ export function InventoryExistenceDetailPage() {
                   <tr key={movement.id}>
                     <td className="px-5 py-3.5 font-medium text-ink">{formatInventoryDateTime(movement.occurredAt)}</td>
                     <td className="px-4 py-3.5"><MovementTypeBadge type={movement.type} /></td>
-                    <td className="px-4 py-3.5 text-right font-bold">−{movement.quantity}</td>
+                    <td className="px-4 py-3.5 text-right font-bold">{movement.quantity}</td>
                     <td className="px-4 py-3.5 font-mono font-semibold">{movement.reference}</td>
                     <td className="px-5 py-3.5 text-right"><Link className="font-semibold text-primary hover:underline" to={`/inventario/movimientos/${movement.id}`}>Ver detalle</Link></td>
                   </tr>
@@ -107,4 +117,3 @@ export function InventoryExistenceDetailPage() {
     </div>
   )
 }
-
