@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom'
 
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { EmptyModulePage } from '@/pages/EmptyModulePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AdminLayout />,
     children: [
-      { index: true, element: <EmptyModulePage /> },
+      { index: true, element: <DashboardPage /> },
       ...administrationRoutes.map((path) => ({ path, element: <EmptyModulePage /> })),
     ],
   },

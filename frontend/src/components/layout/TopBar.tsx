@@ -1,6 +1,6 @@
 import { Building2, ChevronDown, Menu, ShieldCheck } from 'lucide-react'
 
-type Center = 'Todos los centros' | 'Kotosh' | 'Canchán'
+export type Center = 'Todos los centros' | 'Kotosh' | 'Canchán'
 
 type TopBarProps = {
   center: Center

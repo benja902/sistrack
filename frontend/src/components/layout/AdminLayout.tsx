@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { Sidebar } from '@/components/layout/Sidebar'
-import { TopBar } from '@/components/layout/TopBar'
+import { TopBar, type Center } from '@/components/layout/TopBar'
+
+export type AdminLayoutContext = {
+  selectedCenter: Center
+}
 
 export function AdminLayout() {
   const [isNavigationOpen, setIsNavigationOpen] = useState(false)
-  const [selectedCenter, setSelectedCenter] = useState<'Todos los centros' | 'Kotosh' | 'Canchán'>(
-    'Todos los centros',
-  )
+  const [selectedCenter, setSelectedCenter] = useState<Center>('Todos los centros')
   const location = useLocation()
 
   const closeNavigation = () => setIsNavigationOpen(false)
@@ -40,7 +42,7 @@ export function AdminLayout() {
           onOpenNavigation={() => setIsNavigationOpen(true)}
         />
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8" key={location.pathname}>
-          <Outlet />
+          <Outlet context={{ selectedCenter } satisfies AdminLayoutContext} />
         </main>
       </div>
     </div>
