@@ -5,12 +5,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import get_settings
+from app.db.session import dispose_database
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    """Reserve lifecycle hooks without connecting to the database at startup."""
-    yield
+    """Release the shared database pool during application shutdown."""
+    try:
+        yield
+    finally:
+        dispose_database()
 
 
 def create_app() -> FastAPI:

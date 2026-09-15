@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from functools import lru_cache
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import get_settings
 
 
+@lru_cache(maxsize=1)
 def get_engine() -> Engine | None:
     database_url = get_settings().database_url
     if not database_url:
@@ -14,14 +16,30 @@ def get_engine() -> Engine | None:
     return create_engine(database_url, pool_pre_ping=True)
 
 
-def get_session() -> Generator[Session, None, None]:
+@lru_cache(maxsize=1)
+def get_session_factory() -> sessionmaker[Session] | None:
     engine = get_engine()
     if engine is None:
+        return None
+    return sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+
+def get_session() -> Generator[Session, None, None]:
+    session_factory = get_session_factory()
+    if session_factory is None:
         raise RuntimeError("DATABASE_URL no está configurada.")
 
-    session_factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     with session_factory() as session:
         yield session
+
+
+def dispose_database() -> None:
+    """Release pooled connections when the application process stops."""
+    engine = get_engine()
+    if engine is not None:
+        engine.dispose()
+    get_session_factory.cache_clear()
+    get_engine.cache_clear()
 
 
 def database_is_ready() -> bool:

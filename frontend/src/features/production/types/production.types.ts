@@ -45,3 +45,47 @@ export type ProductionListData = {
   chart: ProductionChartPoint[]
   summary: ProductionSummary
 }
+
+export type ProductionCenterApi = {
+  id: string
+  code: string
+  name: ProductionCenter
+}
+
+export type ProductionProductApi = {
+  id: string
+  sku: 'LECHE'
+  name: 'Leche'
+  unit_of_measure: 'L'
+}
+
+export type MilkProductionApi = {
+  id: string
+  lot_code: string
+  production_date: string
+  responsible: string
+  total_liters: string | number
+  registered_by_user_id: string
+  created_at: string
+  center: ProductionCenterApi
+  product: ProductionProductApi
+}
+
+export type MilkProductionDetailApi = MilkProductionApi & {
+  details: Array<{
+    id: string
+    animal_reference: string
+    liters: string | number
+    created_at: string
+  }>
+}
+
+export type MilkProductionCreate = {
+  production_date: string
+  center_id: string
+  responsible: string
+  details: Array<{
+    animal_reference: string
+    liters: number
+  }>
+}

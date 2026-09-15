@@ -2,15 +2,28 @@ import { ArrowLeft, BadgeCheck, Building2, GitBranch, LockKeyhole, Package, User
 import { Link, useParams } from 'react-router-dom'
 
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { ApiError } from '@/services/http'
 
+import { ProductionRequestState } from '../components/ProductionRequestState'
 import { ProductionStatusBadge } from '../components/ProductionStatusBadge'
-import { getProductionDetailMock } from '../data/production.mock'
+import { toProductionDetail } from '../data/production.mapper'
+import { useMilkProduction } from '../queries/production.queries'
 
 export function ProductionDetailPage() {
   const { productionId = '' } = useParams()
-  const production = getProductionDetailMock(productionId)
+  const productionQuery = useMilkProduction(productionId)
 
-  if (!production) return <NotFoundPage />
+  if (productionQuery.isPending) {
+    return <ProductionRequestState state="loading" />
+  }
+  if (productionQuery.error instanceof ApiError && productionQuery.error.status === 404) {
+    return <NotFoundPage />
+  }
+  if (productionQuery.isError) {
+    return <ProductionRequestState state="error" onRetry={() => productionQuery.refetch()} />
+  }
+
+  const production = toProductionDetail(productionQuery.data)
 
   return (
     <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-6">

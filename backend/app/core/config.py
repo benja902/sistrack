@@ -1,10 +1,11 @@
 from functools import lru_cache
 from pathlib import Path
+from uuid import UUID
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
@@ -18,9 +19,13 @@ class Settings(BaseSettings):
         default=30,
         validation_alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES",
     )
+    temporary_registered_by_user_id: UUID = Field(
+        default=UUID("00000000-0000-0000-0000-000000000301"),
+        validation_alias="TEMPORARY_REGISTERED_BY_USER_ID",
+    )
 
     model_config = SettingsConfigDict(
-        env_file=REPOSITORY_ROOT / ".env",
+        env_file=BACKEND_ROOT / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )

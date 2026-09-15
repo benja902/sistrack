@@ -1,6 +1,12 @@
 import { ClipboardX } from 'lucide-react'
 
-export function ProductionEmptyState() {
+import type { Center } from '@/components/layout/TopBar'
+
+export function ProductionEmptyState({ center }: { center: Center }) {
+  const message = center === 'Canchán'
+    ? 'No existen registros de producción de leche para el centro Canchán.'
+    : 'Aún no existen registros de producción de leche para el centro seleccionado.'
+
   return (
     <section
       className="flex min-h-[420px] items-center justify-center rounded-xl border border-border-subtle bg-white px-6 py-16 text-center shadow-sm"
@@ -14,7 +20,7 @@ export function ProductionEmptyState() {
           Sin registros de producción
         </h2>
         <p className="mt-1.5 text-sm leading-6 text-slate">
-          No existen registros de producción de leche para el centro Canchán.
+          {message}
         </p>
       </div>
     </section>
