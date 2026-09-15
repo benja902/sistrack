@@ -3,12 +3,14 @@
 from app.modules.catalog.models import Center, Product
 from app.modules.identity.models import OperationalActor, Role, User
 from app.modules.inventory.models import InventoryBalance, InventoryMovement
+from app.modules.logistics.models import Dispatch, Reception
 from app.modules.production.models import MilkProduction, MilkProductionDetail
 from app.modules.requests.models import GuineaPigRequest, InventoryReservation
 from app.modules.traceability.models import TraceabilityEvent
 
 __all__ = [
     "Center",
+    "Dispatch",
     "InventoryBalance",
     "InventoryMovement",
     "InventoryReservation",
@@ -16,6 +18,7 @@ __all__ = [
     "MilkProductionDetail",
     "OperationalActor",
     "Product",
+    "Reception",
     "GuineaPigRequest",
     "Role",
     "TraceabilityEvent",
