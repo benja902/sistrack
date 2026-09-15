@@ -4,13 +4,16 @@ import { AdminLayout } from '@/components/layout/AdminLayout'
 import { ProtectedRoute, PublicOnlyRoute } from '@/features/auth/components/AuthRoute'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { InventoryExistenceDetailPage } from '@/features/inventory/pages/InventoryExistenceDetailPage'
+import { InventoryExistencePage } from '@/features/inventory/pages/InventoryExistencePage'
+import { InventoryMovementDetailPage } from '@/features/inventory/pages/InventoryMovementDetailPage'
+import { InventoryMovementPage } from '@/features/inventory/pages/InventoryMovementPage'
 import { ProductionDetailPage } from '@/features/production/pages/ProductionDetailPage'
 import { ProductionListPage } from '@/features/production/pages/ProductionListPage'
 import { EmptyModulePage } from '@/pages/EmptyModulePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 const administrationRoutes = [
-  'inventario',
   'solicitudes',
   'logistica',
   'incidencias',
@@ -30,6 +33,10 @@ export const router = createBrowserRouter([
           { index: true, element: <DashboardPage /> },
           { path: 'produccion', element: <ProductionListPage /> },
           { path: 'produccion/:productionId', element: <ProductionDetailPage /> },
+          { path: 'inventario', element: <InventoryExistencePage /> },
+          { path: 'inventario/existencias/:existenceId', element: <InventoryExistenceDetailPage /> },
+          { path: 'inventario/movimientos', element: <InventoryMovementPage /> },
+          { path: 'inventario/movimientos/:movementId', element: <InventoryMovementDetailPage /> },
           ...administrationRoutes.map((path) => ({ path, element: <EmptyModulePage /> })),
         ],
       },
