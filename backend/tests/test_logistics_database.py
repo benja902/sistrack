@@ -13,6 +13,7 @@ from app.db.session import get_engine, get_session
 from app.main import create_app
 from app.modules.catalog.models import Center
 from app.modules.identity.models import OperationalActor
+from app.modules.incidents.models import Incident
 from app.modules.inventory.models import InventoryBalance, InventoryMovement
 from app.modules.inventory.seed import find_inventory_seed_user
 from app.modules.logistics.models import Dispatch
@@ -125,6 +126,11 @@ def test_real_database_logistics_flow() -> None:
         assert received.status_code == 200
         assert received.json()["reception"]["status"] == "CONFORMING"
         assert Decimal(received.json()["reception"]["difference"]) == Decimal("0")
+        assert session.scalar(
+            select(Incident).where(
+                Incident.reception_id == received.json()["reception"]["id"]
+            )
+        ) is None
 
         milk = session.scalar(
             select(MilkProduction)
@@ -187,6 +193,31 @@ def test_real_database_logistics_flow() -> None:
         assert milk_received.json()["reception"]["status"] == "WITH_DIFFERENCE"
         assert Decimal(milk_received.json()["reception"]["difference"]) == Decimal("-0.5")
 
+        incident = session.scalar(
+            select(Incident).where(
+                Incident.reception_id == milk_received.json()["reception"]["id"]
+            )
+        )
+        assert incident is not None
+        assert incident.status == "OPEN"
+        original_difference = Decimal(milk_received.json()["reception"]["difference"])
+
+        incidents = client.get("/api/v1/incidents")
+        assert incidents.status_code == 200
+        assert any(item["id"] == str(incident.id) for item in incidents.json())
+        detail = client.get(f"/api/v1/incidents/{incident.id}")
+        assert detail.status_code == 200
+        assert Decimal(detail.json()["reception"]["difference"]) == original_difference
+
+        closed = client.post(
+            f"/api/v1/incidents/{incident.id}/close",
+            json={"resolution": "Diferencia revisada y documentada por Abraham."},
+        )
+        assert closed.status_code == 200
+        assert closed.json()["status"] == "CLOSED"
+        assert closed.json()["closed_by_user"]["id"] == str(user.id)
+        assert Decimal(closed.json()["reception"]["difference"]) == original_difference
+
         event_types = set(
             session.scalars(
                 select(TraceabilityEvent.event_type).where(
@@ -196,6 +227,8 @@ def test_real_database_logistics_flow() -> None:
                             "dispatch_departed",
                             "reception_registered",
                             "reception_difference_detected",
+                            "incident_created",
+                            "incident_closed",
                         )
                     )
                 )
@@ -206,6 +239,8 @@ def test_real_database_logistics_flow() -> None:
             "dispatch_departed",
             "reception_registered",
             "reception_difference_detected",
+            "incident_created",
+            "incident_closed",
         }
     finally:
         session.rollback()

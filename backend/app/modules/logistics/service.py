@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.modules.catalog.models import Center
 from app.modules.identity.models import OperationalActor, User
+from app.modules.incidents.service import create_incident_for_reception
 from app.modules.inventory.models import InventoryBalance, InventoryMovement
 from app.modules.production.models import MilkProduction
 from app.modules.requests.models import GuineaPigRequest
@@ -394,5 +395,6 @@ def register_reception(
             reference_id=reception.id,
             metadata={"difference": float(difference), "observation": payload.observation},
         )
+    create_incident_for_reception(session, reception, dispatch, user.id)
     session.commit()
     return get_dispatch(session, dispatch.id) or dispatch

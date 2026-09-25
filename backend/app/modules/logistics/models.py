@@ -1,12 +1,16 @@
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, CreatedAtMixin
+
+if TYPE_CHECKING:
+    from app.modules.incidents.models import Incident
 
 
 class Dispatch(CreatedAtMixin, Base):
@@ -123,6 +127,7 @@ class Reception(CreatedAtMixin, Base):
 
     dispatch: Mapped[Dispatch] = relationship(back_populates="reception")
     received_by_user: Mapped["User"] = relationship()
+    incident: Mapped["Incident | None"] = relationship(back_populates="reception", uselist=False)
 
 
 from app.modules.catalog.models import Center, Product  # noqa: E402

@@ -2,6 +2,7 @@
 
 from app.modules.catalog.models import Center, Product
 from app.modules.identity.models import OperationalActor, Role, User
+from app.modules.incidents.models import Incident
 from app.modules.inventory.models import InventoryBalance, InventoryMovement
 from app.modules.logistics.models import Dispatch, Reception
 from app.modules.production.models import MilkProduction, MilkProductionDetail
@@ -12,6 +13,7 @@ __all__ = [
     "Center",
     "Dispatch",
     "InventoryBalance",
+    "Incident",
     "InventoryMovement",
     "InventoryReservation",
     "MilkProduction",

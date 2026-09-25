@@ -4,6 +4,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout'
 import { ProtectedRoute, PublicOnlyRoute } from '@/features/auth/components/AuthRoute'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage'
+import { IncidentListPage } from '@/features/incidents/pages/IncidentListPage'
 import { InventoryExistenceDetailPage } from '@/features/inventory/pages/InventoryExistenceDetailPage'
 import { InventoryExistencePage } from '@/features/inventory/pages/InventoryExistencePage'
 import { InventoryMovementDetailPage } from '@/features/inventory/pages/InventoryMovementDetailPage'
@@ -21,7 +23,6 @@ import { EmptyModulePage } from '@/pages/EmptyModulePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 const administrationRoutes = [
-  'incidencias',
   'trazabilidad',
   'reportes',
   'configuracion',
@@ -49,6 +50,8 @@ export const router = createBrowserRouter([
           { path: 'logistica/despachos/:dispatchId', element: <DispatchDetailPage /> },
           { path: 'logistica/recepciones', element: <ReceptionListPage /> },
           { path: 'logistica/recepciones/:dispatchId', element: <ReceptionDetailPage /> },
+          { path: 'incidencias', element: <IncidentListPage /> },
+          { path: 'incidencias/:incidentId', element: <IncidentDetailPage /> },
           ...administrationRoutes.map((path) => ({ path, element: <EmptyModulePage /> })),
         ],
       },
