@@ -27,3 +27,5 @@ Thumbs.db
 
 docs/
 design-reference/
+.vercel
+.env*.local

@@ -1,0 +1,3 @@
+# Keep local environment files out of CLI uploads.
+.env*
+**/.env*
