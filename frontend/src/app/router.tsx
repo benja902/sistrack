@@ -23,7 +23,6 @@ import { EmptyModulePage } from '@/pages/EmptyModulePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 const administrationRoutes = [
-  'trazabilidad',
   'reportes',
   'configuracion',
 ]
@@ -52,6 +51,15 @@ export const router = createBrowserRouter([
           { path: 'logistica/recepciones/:dispatchId', element: <ReceptionDetailPage /> },
           { path: 'incidencias', element: <IncidentListPage /> },
           { path: 'incidencias/:incidentId', element: <IncidentDetailPage /> },
+          {
+            path: 'trazabilidad',
+            lazy: async () => {
+              const { TraceabilityPage } = await import(
+                '@/features/traceability/pages/TraceabilityPage'
+              )
+              return { Component: TraceabilityPage }
+            },
+          },
           ...administrationRoutes.map((path) => ({ path, element: <EmptyModulePage /> })),
         ],
       },

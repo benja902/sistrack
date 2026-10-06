@@ -1,4 +1,7 @@
 alembic>=1.14,<2.0
+google-genai>=1.75,<2.0
+pwdlib[argon2]>=0.3,<1.0
+pyjwt>=2.10,<3.0
 fastapi>=0.115,<1.0
 psycopg[binary]>=3.2,<4.0
 pydantic-settings>=2.7,<3.0

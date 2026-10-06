@@ -57,11 +57,18 @@ El repositorio incluye `vercel.json` para desplegar el frontend Vite y la API Fa
 
 1. Importe el repositorio en Vercel sin cambiar el Root Directory.
 2. Mantenga los comandos definidos en `vercel.json` (`npm --prefix frontend ci` y `npm --prefix frontend run build`).
-3. Configure estas variables en Vercel: `DATABASE_URL`, `APP_ENV=production`, `CORS_ORIGINS` con la URL pública de Vercel y un `JWT_SECRET` aleatorio.
-4. No es necesario definir `VITE_API_BASE_URL` cuando frontend y API se despliegan en el mismo proyecto; el frontend usará `/api/v1` automáticamente.
+3. Configure en Preview y Production `DATABASE_URL`, `DATABASE_POOL_MODE=transaction` y un `JWT_SECRET` aleatorio (mínimo 32 caracteres). Para `DATABASE_URL`, copie la URI **Transaction Pooler** del proyecto desde Supabase, use el driver `postgresql+psycopg` y exija SSL con `sslmode=require`. Mantenga esta URI solamente en las variables de entorno de Vercel; los archivos `.env.example` no contienen conexiones reales. Configure `GEMINI_API_KEY` en el backend si desea usar Gemini.
+4. No es necesario definir `VITE_API_BASE_URL` cuando frontend y API se despliegan en el mismo proyecto; el frontend usará `/api/v1` automáticamente. Si la define en Vercel, use `/api/v1`, nunca una URL local.
+
+`DATABASE_POOL_MODE=standard` es el valor predeterminado para desarrollo con conexión directa o Session Pooler. Usa el pool normal de SQLAlchemy con `pool_pre_ping`. `DATABASE_POOL_MODE=transaction` usa `NullPool` y desactiva los prepared statements automáticos de psycopg; el Transaction Pooler reutiliza las conexiones entre instancias serverless. Las sesiones y transacciones de SQLAlchemy no cambian.
 
 Después del despliegue, verifique `https://SU-DOMINIO.vercel.app/api/v1/health`.
 
 ## Alcance actual
 
-Esta primera fase contiene la infraestructura, entidades maestras y eventos de trazabilidad append-only. Los módulos de producción, inventario, solicitudes, logística, incidencias, reportes, IA y autenticación de usuarios se implementarán de forma incremental.
+El módulo IA inicial está documentado en [AI_MODULE.md](AI_MODULE.md):
+tres operaciones administrativas con Gemini, contexto permitido y fallback determinista.
+
+El proyecto contiene infraestructura, autenticación, entidades maestras, producción,
+inventario, solicitudes, logística, incidencias, trazabilidad e IA inicial.
+Los reportes y las capacidades avanzadas se desarrollarán de forma incremental.

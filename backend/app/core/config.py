@@ -3,16 +3,24 @@ from pathlib import Path
 from typing import Literal
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
+    gemini_api_key: SecretStr | None = Field(default=None, validation_alias="GEMINI_API_KEY")
+    gemini_model: str = Field(default="gemini-3.5-flash-lite", validation_alias="GEMINI_MODEL")
+    gemini_timeout_seconds: float = Field(
+        default=5, gt=0, le=60, validation_alias="GEMINI_TIMEOUT_SECONDS"
+    )
     app_env: str = Field(default="development", validation_alias="APP_ENV")
     api_v1_prefix: str = Field(default="/api/v1", validation_alias="API_V1_PREFIX")
     database_url: str | None = Field(default=None, validation_alias="DATABASE_URL")
+    database_pool_mode: Literal["standard", "transaction"] = Field(
+        default="standard", validation_alias="DATABASE_POOL_MODE"
+    )
     cors_origins: str = Field(default="http://localhost:5173", validation_alias="CORS_ORIGINS")
     jwt_secret: str | None = Field(default=None, validation_alias="JWT_SECRET")
     jwt_algorithm: Literal["HS256"] = Field(default="HS256", validation_alias="JWT_ALGORITHM")

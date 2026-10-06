@@ -34,6 +34,7 @@ def _dispatch_options():
         selectinload(Dispatch.milk_production),
         selectinload(Dispatch.guinea_pig_request),
         selectinload(Dispatch.reception).selectinload(Reception.received_by_user),
+        selectinload(Dispatch.reception).selectinload(Reception.incident),
     )
 
 
@@ -56,12 +57,16 @@ def _next_dispatch_code(session: Session, created_at: datetime) -> str:
     return f"{prefix}{sequence:03d}"
 
 
-def list_dispatches(session: Session, center_code: str | None = None) -> list[Dispatch]:
+def list_dispatches(
+    session: Session, center_code: str | None = None, *, production_id: uuid.UUID | None = None
+) -> list[Dispatch]:
     statement = select(Dispatch).options(*_dispatch_options()).order_by(Dispatch.created_at.desc())
     if center_code:
         statement = statement.where(
             Dispatch.center.has(func.upper(Center.code) == center_code.upper())
         )
+    if production_id is not None:
+        statement = statement.where(Dispatch.milk_production_id == production_id)
     return list(session.scalars(statement).all())
 
 

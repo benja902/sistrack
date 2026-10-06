@@ -6,15 +6,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 from app.core.config import get_settings
 from app.db.session import dispose_database
+from app.modules.ai.client import GeminiClient
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     """Release the shared database pool during application shutdown."""
     try:
         yield
     finally:
-        dispose_database()
+        try:
+            await app.state.gemini_client.close()
+        finally:
+            dispose_database()
 
 
 def create_app() -> FastAPI:
@@ -25,6 +29,7 @@ def create_app() -> FastAPI:
         description="API base para la trazabilidad de Kotosh y Canchán.",
         lifespan=lifespan,
     )
+    app.state.gemini_client = GeminiClient(settings)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,

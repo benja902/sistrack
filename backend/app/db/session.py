@@ -4,15 +4,27 @@ from functools import lru_cache
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
 
 
 @lru_cache(maxsize=1)
 def get_engine() -> Engine | None:
-    database_url = get_settings().database_url
+    settings = get_settings()
+    database_url = settings.database_url
     if not database_url:
         return None
+
+    if settings.database_pool_mode == "transaction":
+        # Supabase's transaction pooler owns connection reuse across serverless instances.
+        # Psycopg prepared statements require session affinity, which this mode lacks.
+        return create_engine(
+            database_url,
+            poolclass=NullPool,
+            connect_args={"prepare_threshold": None},
+        )
+
     return create_engine(database_url, pool_pre_ping=True)
 
 

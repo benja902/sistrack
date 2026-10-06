@@ -1,5 +1,6 @@
 """Import all models so Alembic can discover metadata and relationships."""
 
+from app.modules.ai.models import AiLog
 from app.modules.catalog.models import Center, Product
 from app.modules.identity.models import OperationalActor, Role, User
 from app.modules.incidents.models import Incident
@@ -10,6 +11,7 @@ from app.modules.requests.models import GuineaPigRequest, InventoryReservation
 from app.modules.traceability.models import TraceabilityEvent
 
 __all__ = [
+    "AiLog",
     "Center",
     "Dispatch",
     "InventoryBalance",

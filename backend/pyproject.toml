@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "API base del Sistema de Información de Trazabilidad Kotosh y Canchán"
 requires-python = ">=3.12"
 dependencies = [
+  "google-genai>=1.75,<2.0",
   "alembic>=1.14,<2.0",
   "fastapi>=0.115,<1.0",
   "psycopg[binary]>=3.2,<4.0",

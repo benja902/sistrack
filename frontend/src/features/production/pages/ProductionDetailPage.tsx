@@ -1,3 +1,4 @@
+import { AiAssistantPanel } from '@/features/ai/components/AiAssistantPanel'
 import { ArrowLeft, BadgeCheck, Building2, GitBranch, LockKeyhole, Package, UserRound } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -111,6 +112,7 @@ export function ProductionDetailPage() {
           </section>
         </div>
       </div>
+      <AiAssistantPanel contextType="production" contextId={productionId} contextLabel={production.lotCode} revision={productionQuery.dataUpdatedAt} explain />
     </div>
   )
 }
