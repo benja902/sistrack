@@ -27,6 +27,8 @@ def create_app() -> FastAPI:
         title="Sitrack API",
         version="0.1.0",
         description="API base para la trazabilidad de Kotosh y Canchán.",
+        docs_url="/api/docs",
+        openapi_url="/api/openapi.json",
         lifespan=lifespan,
     )
     app.state.gemini_client = GeminiClient(settings)
